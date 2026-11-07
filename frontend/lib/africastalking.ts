@@ -23,6 +23,11 @@ const AFRICASTALKING_BASE_URL = AFRICASTALKING_USERNAME === 'sandbox'
   : 'https://api.africastalking.com'
 
 export async function sendSMS(message: SMSMessage): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  // Provider switch: ThriveVas (judges' suggestion) vs Africa's Talking.
+  if (process.env.SMS_PROVIDER === 'thrivevas') {
+    const { thriveVasSendSMS } = await import('./thrivevas')
+    return thriveVasSendSMS({ to: message.to, message: message.message, from: message.from, callbackUrl: undefined })
+  }
   if (!AFRICASTALKING_API_KEY || AFRICASTALKING_API_KEY === 'your_sandbox_api_key_here') {
     console.log('[SMS Mock] Would send:', message)
     return { success: true, messageId: `mock-${Date.now()}` }

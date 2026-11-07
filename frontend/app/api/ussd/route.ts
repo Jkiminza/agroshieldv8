@@ -57,6 +57,29 @@ async function weatherFor(loc: string | null) {
   } catch { return null }
 }
 
+async function isOnTopic(q: string): Promise<boolean> {
+  const low = q.toLowerCase()
+  const topics = ['agroshield','agriculture','agricultural','insurance','policy','payout','premium','trigger','weather','rain','rainfall','county','threshold','ussd','sms','oracle','coverage','crop','farm','drought','soil','harvest','season','plot','claim']
+  return topics.some(t => low.includes(t))
+}
+
+async function tryWeatherReply(q: string): Promise<string | null> {
+  const low = q.toLowerCase()
+  const counties = await countiesList()
+  const found = counties.find(c => low.includes(c.toLowerCase()))
+  const asksWeather = low.includes('weather')
+  const asksRain = low.includes('rain') || low.includes('rainfall')
+  // County named + weather/rain asked -> live weather.
+  if (found && (asksWeather || asksRain)) {
+    const w = await weatherFor(found + ', Kenya')
+    if (!w) return `Weather unavailable for ${short(found)}.`
+    return `${short(found, 18)}: Rain ${w.rainfallMm}mm, ${w.temperatureC}C, ${w.humidity}% RH, ${w.description}.`
+  }
+  // Explicit weather request without a county -> prompt.
+  if (asksWeather && !found) return 'Ask with a county name, e.g. "weather in Kitui".'
+  return null
+}
+
 export async function GET() { void AT_USERNAME; void AT_API_KEY; return new NextResponse('ussd ok', { headers: { 'Content-Type': 'text/plain' } }) }
 
 export async function POST(request: NextRequest) {
@@ -73,11 +96,40 @@ export async function POST(request: NextRequest) {
     if (!farmer || !farmer.ussd_pin_hash) {
       // Not registered: registration flow OR help
       if (inputs.length === 0) {
-        return txt(clip('AgroShield: New number.\n1. Register\n2. Help'))
+        return txt(clip('AgroShield: New number.\n1. Register\n2. Help\n3. Ask assistant'))
       }
       const head = inputs[0]
       if (head === '2') {
         return txt(clip('AgroShield parametric crop cover on Base.\nRegister on web or USSD (1). Dial again.'), true)
+      }
+      if (head === '3') {
+        const q = inputs.slice(1).join(' ').trim()
+        if (!q) return txt(clip('Type: 3*your question'))
+        const wreply = await tryWeatherReply(q)
+        if (wreply) return txt(clip(wreply, 155), true)
+        if (!(await isOnTopic(q))) return txt(clip('I can only help with AgroShield and agricultural insurance topics.'), true)
+        const key = process.env.OPENAI_API_KEY
+        if (!key) return txt(clip('Assistant unavailable. Visit website.'), true)
+        try {
+          const res = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini', temperature: 0.2, max_tokens: 120,
+              messages: [
+                { role: 'system', content: `You are AgroShield Assistant on USSD. ALLOWED: AgroShield, agriculture, crop insurance, weather and rainfall in any county, payouts, USSD and SMS steps, county rules, premiums, triggers, policies. Examples allowed: weather in Kitui, rainfall in Nakuru, how to buy cover, my policy status, what is threshold. REFUSE (reply exactly: I can only help with AgroShield and agricultural insurance topics.) politics, people, sports, coding, math, capitals, jokes. Keep replies under 150 chars, plain text, no markdown, no newlines.` },
+                { role: 'user', content: q },
+              ],
+            }),
+          })
+          if (!res.ok) return txt(clip('Assistant unavailable. Try website.'), true)
+          const data = await res.json()
+          const reply = (data?.choices?.[0]?.message?.content || 'No response.').replace(/\s+/g, ' ').trim()
+          return txt(clip(reply, 155), true)
+        } catch (e) {
+          console.error('USSD chat error:', e)
+          return txt('Service error, try again.', true)
+        }
       }
       if (head !== '1') return txt(clip('Invalid option. 0. Back'), true)
 
@@ -184,7 +236,7 @@ export async function POST(request: NextRequest) {
     // Authenticated main menu selection is inputs[1]
     if (inputs.length === 1) {
       // Already validated pinCandidate above only if valid; reaching here with a single valid PIN.
-      return txt(clip('PIN ok.\n1. My profile\n2. My policies\n3. My payouts\n4. Weather\n5. Help\n(Enter PIN*choice)'))
+      return txt(clip('PIN ok.\n1. Profile\n2. Policies\n3. Payouts\n4. Weather\n5. Help\n6. Ask assistant\n(PIN*choice)'))
     }
 
     const action = inputs[1]
@@ -250,6 +302,42 @@ export async function POST(request: NextRequest) {
       const lines = slice.map((c, i) => `${i + 1}. ${short(c)}`)
       let msg = clip(`Select county:\n${lines.join('\n')}` + (start + perPage < counties.length ? '\n98. Next' : '') + '\n0. Back')
       return txt(msg)
+    }
+
+    // ---- Ask AgroShield assistant ----
+    if (action === '6') {
+      if (inputs.length < 3) {
+        return txt(clip('Type: PIN*6*your question\ne.g. 2004*6*how do I buy cover?'))
+      }
+      const question = inputs.slice(1).join(' ').trim()
+      if (!question) return txt(clip('Please type a question. 0. Back'), true)
+      const wreply = await tryWeatherReply(question)
+      if (wreply) return txt(clip(wreply, 155), true)
+      if (!(await isOnTopic(question))) return txt(clip('I can only help with AgroShield and agricultural insurance topics.'), true)
+      const key = process.env.OPENAI_API_KEY
+      if (!key) return txt(clip('Chatbot not configured. Visit website.'), true)
+      try {
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            temperature: 0.2,
+            max_tokens: 120,
+            messages: [
+              { role: 'system', content: `You are AgroShield Assistant on USSD. ALLOWED: AgroShield, agriculture, crop insurance, weather and rainfall in any county, payouts, USSD and SMS steps, county rules, premiums, triggers, policies. Examples allowed: weather in Kitui, rainfall in Nakuru, how to buy cover, my policy status, what is threshold. REFUSE (reply exactly: I can only help with AgroShield and agricultural insurance topics.) politics, people, sports, coding, math, capitals, jokes. Keep replies under 150 chars, plain text, no markdown, no newlines.` },
+              { role: 'user', content: question },
+            ],
+          }),
+        })
+        if (!res.ok) return txt(clip('Assistant unavailable. Try website.'), true)
+        const data = await res.json()
+        const reply = (data?.choices?.[0]?.message?.content || 'No response.').replace(/\s+/g, ' ').trim()
+        return txt(clip(reply, 155), true)
+      } catch (e) {
+        console.error('USSD chat error:', e)
+        return txt('Service error, try again.', true)
+      }
     }
 
     return txt(clip('Invalid option. 0. Back'), true)

@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { WagmiProvider } from '@/components/wagmi-provider'
+import { Chatbot } from '@/components/chatbot'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({
         <WagmiProvider>
           {children}
         </WagmiProvider>
+        <Chatbot />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

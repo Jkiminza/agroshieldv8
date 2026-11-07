@@ -1,9 +1,14 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { createConfig, http } from 'wagmi'
 import { baseSepolia } from 'viem/chains'
+import { injected, metaMask, coinbaseWallet } from 'wagmi/connectors'
 
-export const config = getDefaultConfig({
-  appName: 'AgroShield',
-  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
+export const config = createConfig({
+  connectors: [
+    injected(),
+    metaMask(),
+    coinbaseWallet({ appName: 'AgroShield' }),
+  ],
   chains: [baseSepolia],
+  transports: { [baseSepolia.id]: http() },
   ssr: true,
 })
