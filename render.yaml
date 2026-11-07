@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: agroshield
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.0
+      - key: BETTER_AUTH_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: BETTER_AUTH_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+        sync: false
+      - key: NEXT_PUBLIC_CONTRACT_ADDRESS
+        value: 0x9C478BC167cE2673fd3c5631601D31D2D50E49fF
+      - key: PRIVATE_KEY
+        sync: false
+      - key: WEATHER_API_KEY
+        sync: false
+      - key: AT_USERNAME
+        value: sandbox
+      - key: AT_API_KEY
+        sync: false
+      - key: AFRICASTALKING_USERNAME
+        value: sandbox
+      - key: AFRICASTALKING_API_KEY
+        sync: false
+      - key: SMS_PROVIDER
+        value: africastalking
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DEMO_MODE
+        value: "true"
+      - key: NEXT_PUBLIC_DEMO_MODE
+        value: "true"
