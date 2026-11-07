@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, serial, decimal, date, varchar } from 'drizzle-orm/pg-core'
+import { pgTable, text, timestamp, boolean, serial, decimal, date, varchar, integer } from 'drizzle-orm/pg-core'
 
 // --- Better Auth required tables -------------------------------------------
 // Column names are camelCase to match Better Auth's defaults. Do not rename.
@@ -76,9 +76,36 @@ export const farmerProfiles = pgTable('farmer_profiles', {
   phoneNumber: varchar('phone_number', { length: 30 }).notNull(),
   nationalId: varchar('national_id', { length: 80 }).notNull(),
   county: varchar('county', { length: 120 }).notNull(),
+  countyId: integer('county_id'),
   cropType: varchar('crop_type', { length: 50 }).notNull(),
   plotSizeAcres: decimal('plot_size_acres', { precision: 10, scale: 2 }).notNull(),
   role: varchar('role', { length: 20 }).notNull().default('farmer'),
+  fullName: text('full_name'),
+  ussdPinHash: text('ussd_pin_hash'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+export const counties = pgTable('counties', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 120 }).notNull().unique(),
+  lat: decimal('lat', { precision: 9, scale: 6 }),
+  lon: decimal('lon', { precision: 9, scale: 6 }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+})
+
+export const countyRules = pgTable('county_rules', {
+  id: serial('id').primaryKey(),
+  countyId: integer('county_id').notNull(),
+  crop: varchar('crop', { length: 50 }).notNull(),
+  triggerMm: integer('trigger_mm').notNull(),
+  exitMm: integer('exit_mm').notNull(),
+  seasonStart: date('season_start').notNull(),
+  seasonEnd: date('season_end').notNull(),
+  coverageDays: integer('coverage_days').notNull(),
+  premiumRate: decimal('premium_rate', { precision: 6, scale: 5 }).notNull(),
+  active: boolean('active').notNull().default(true),
+  notes: text('notes'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
@@ -138,4 +165,25 @@ export const transactions = pgTable('transactions', {
   description: text('description'),
   transactionDate: timestamp('transactionDate').notNull().defaultNow(),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
+})
+
+// --- Insurance policies (on-chain mirror) ---------------------------------
+export const policies = pgTable('policies', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  onChainPolicyId: integer('on_chain_policy_id').notNull(),
+  holder: text('holder').notNull(),
+  thresholdMm: integer('threshold_mm').notNull(),
+  countyRuleId: integer('county_rule_id'),
+  crop: text('crop'),
+  coverageEth: text('coverage_eth').notNull(),
+  premiumEth: text('premium_eth').notNull(),
+  exitMm: integer('exit_mm'),
+  seasonStart: date('season_start'),
+  seasonEnd: date('season_end'),
+  coverageDays: integer('coverage_days'),
+  location: text('location'),
+  txHash: text('tx_hash'),
+  status: varchar('status', { length: 20 }).notNull().default('active'),
+  purchasedAt: timestamp('purchased_at').notNull().defaultNow(),
 })

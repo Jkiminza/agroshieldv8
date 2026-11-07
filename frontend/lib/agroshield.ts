@@ -1,14 +1,12 @@
-import { galileo } from './wagmi'
+import { baseSepolia } from 'viem/chains'
 import { parseEther, formatEther, keccak256, toBytes } from 'viem'
 import { CONTRACT_ABI } from './abi'
 
-// Deployed contract address on 0G Galileo Testnet
-export const CONTRACT_ADDRESS = "0xC3EF46B3Fcce1a266a65DdEF2865BE59758a9e75"
+export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000"
 
-export const NETWORK = galileo
-export const EXPLORER_URL = "https://chainscan-galileo.0g.ai"
+export const NETWORK = baseSepolia
+export const EXPLORER_URL = "https://sepolia.basescan.org"
 
-// Mock function for getting connected address - wagmi handles this via useAccount hook
 export async function getConnectedAddress(): Promise<string> {
   throw new Error("Use useAccount hook from wagmi instead")
 }
@@ -18,12 +16,10 @@ export async function buyPolicy({
   coverageAmount,
   rainfallThreshold = 25,
 }: {
-  premium: number;          // in ETH (will be converted to wei)
-  coverageAmount: number;   // in ETH (will be converted to wei)
+  premium: number;
+  coverageAmount: number;
   rainfallThreshold?: number;
 }) {
-  // This function should be called from a React component using wagmi hooks
-  // The actual implementation will be in the component using useWriteContract
   const premiumWei = parseEther(premium.toString())
   const coverageWei = parseEther(coverageAmount.toString())
   
@@ -37,7 +33,6 @@ export async function buyPolicy({
 }
 
 export async function getPolicy(policyId: number) {
-  // This should be called from a React component using useReadContract
   return {
     address: CONTRACT_ADDRESS as `0x${string}`,
     abi: CONTRACT_ABI,
@@ -47,7 +42,6 @@ export async function getPolicy(policyId: number) {
 }
 
 export async function reportRainfall(policyId: number, rainfallMm: number) {
-  // Mock report hash - in production this would come from a real oracle/assessment
   const reportHash = generateReportHash({ policyId, rainfallMm, timestamp: Date.now() })
   
   return {
@@ -67,12 +61,10 @@ export async function settlePolicy(policyId: number) {
   }
 }
 
-// Generate keccak256 hash for mock reports using viem
 function generateReportHash(data: any): `0x${string}` {
   return keccak256(toBytes(JSON.stringify(data)))
 }
 
-// Helper to format explorer URLs
 export function getExplorerUrl(txHash: string) {
   return `${EXPLORER_URL}/tx/${txHash}`
 }

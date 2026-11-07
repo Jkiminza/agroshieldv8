@@ -16,3 +16,8 @@ contracts/cache/
 *.log
 frontend/AGENTS.md
 frontend/CLAUDE.md
+.vercel
+.env*
+
+# CHIRPS cache
+scripts/.cache/

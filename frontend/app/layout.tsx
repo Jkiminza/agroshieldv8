@@ -1,10 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
 import { WagmiProvider } from '@/components/wagmi-provider'
 import './globals.css'
-
-const inter = Inter({ variable: '--font-inter', subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'AgroShield - Parametric Crop Insurance for African Farmers',
@@ -22,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} bg-[#0a0f1e]`} suppressHydrationWarning>
+    <html lang="en" className="bg-[#0a0f1e]" suppressHydrationWarning>
       <body className="font-sans antialiased">
         <WagmiProvider>
           {children}

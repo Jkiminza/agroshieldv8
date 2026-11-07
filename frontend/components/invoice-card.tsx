@@ -78,7 +78,7 @@ export function InvoiceCard({
             ✓
           </motion.div>
           <p className="font-display text-3xl font-bold text-white mb-2">PROTECTED</p>
-          <p className="text-emerald-100 text-sm font-medium mb-4">Coverage Active on 0G</p>
+          <p className="text-emerald-100 text-sm font-medium mb-4">Coverage Active on Base</p>
 
           <div className="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
             <p className="text-emerald-50 text-xs mb-1">Automated Payouts Enabled</p>

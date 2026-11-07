@@ -63,7 +63,7 @@ export function LandingPage() {
                   When Drought Strikes, AgroShield Pays.
                 </h1>
                 <p className="text-lg md:text-xl text-[#8a9bb5] text-balance leading-relaxed">
-                  AgroShield delivers parametric insurance to smallholder farmers across Africa. Weather-triggered, blockchain-verified, instant payouts. Powered by 0G.
+                  AgroShield delivers parametric insurance to smallholder farmers across Africa. Weather-triggered, blockchain-verified, instant payouts. Powered by Base.
                 </p>
               </div>
 
@@ -401,13 +401,13 @@ export function LandingPage() {
             <p className="mt-4 text-base leading-7 text-neutral-600">AgroShield works with organisations building a more resilient future for African farmers.</p>
           </div>
           <div className="mt-12 grid gap-6 sm:grid-cols-2">
-            <a href="https://0g.ai" target="_blank" rel="noreferrer" className="group flex min-h-44 flex-col items-center justify-center rounded-2xl bg-white p-8 transition hover:bg-neutral-50">
+            <a href="https://base.org" target="_blank" rel="noreferrer" className="group flex min-h-44 flex-col items-center justify-center rounded-2xl bg-white p-8 transition hover:bg-neutral-50">
               <img
-                src="/0g-logo.png"
-                alt="0G logo"
+                src="/placeholder-logo.svg"
+                alt="Base logo"
                 className="size-20 rounded-full object-cover transition group-hover:scale-105"
               />
-              <span className="mt-5 text-lg font-semibold tracking-tight text-neutral-950">0G</span>
+              <span className="mt-5 text-lg font-semibold tracking-tight text-neutral-950">Base</span>
             </a>
           </div>
         </div>
@@ -469,7 +469,7 @@ export function LandingPage() {
           >
             <h2 className="font-display text-4xl md:text-5xl font-bold text-[#f0f4ff] mb-4">Security You Can Trust</h2>
             <div className="h-2 w-24 bg-[#00c896] mb-6 rounded-full" />
-            <p className="text-lg text-[#8a9bb5]">Enterprise-grade security built on the 0G blockchain</p>
+            <p className="text-lg text-[#8a9bb5]">Enterprise-grade security built on Base (Base Sepolia)</p>
           </motion.div>
 
           <SecurityFeatures />
@@ -495,7 +495,7 @@ export function LandingPage() {
             {[
               {
                 q: 'How quickly will I get paid after a drought trigger?',
-                a: 'AgroShield processes payouts within 48 hours of weather-triggered event confirmation on the 0G blockchain. No claims investigators, no delays. Funds arrive as 0G in your wallet.',
+                a: 'AgroShield processes payouts within 48 hours of weather-triggered event confirmation on Base (Base Sepolia). No claims investigators, no delays. Funds arrive as ETH in your wallet.',
               },
               {
                 q: "What are AgroShield's fees?",
@@ -588,7 +588,7 @@ export function LandingPage() {
               <p className="text-[#8a9bb5] text-sm">© 2025 AgroShield. Built for African Farmers.</p>
               <div className="flex items-center space-x-2 mt-4 md:mt-0 text-[#8a9bb5] text-sm">
                 <span>Powered by</span>
-                <span className="font-display font-bold text-[#00c896]">0G</span>
+                <span className="font-display font-bold text-[#00c896]">Base</span>
               </div>
             </div>
           </div>

@@ -23,9 +23,13 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const [cropType, setCropType] = useState('maize')
   const [plotSize, setPlotSize] = useState('')
   const [role, setRole] = useState<'farmer' | 'partner'>('farmer')
+  const [loginPhone, setLoginPhone] = useState('')
+  const [loginPin, setLoginPin] = useState('')
+  const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [usePhone, setUsePhone] = useState(false)
 
   const isSignUp = mode === 'sign-up'
 
@@ -60,6 +64,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
             cropType,
             plotSizeAcres: plotSize,
             role,
+            pin: pin.trim() || undefined,
           })
           router.push('/dashboard')
           router.refresh()
@@ -67,6 +72,20 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
           await savePartnerProfile()
           setShowSuccess(true)
         }
+      } else if (usePhone) {
+        const res = await fetch('/api/auth/phone', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: loginPhone, pin: loginPin }),
+          credentials: 'include',
+        })
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          setError(data?.error || 'Unable to sign in with phone/PIN.')
+          return
+        }
+        router.push('/dashboard')
+        router.refresh()
       } else {
         router.push('/dashboard')
         router.refresh()
@@ -129,6 +148,14 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                 <Button type="button" onClick={() => router.push('/')} className="mt-6 w-full rounded-xl">Back to AgroShield</Button>
               </div>
             ) : (
+              <>
+            {!isSignUp && (
+                <div className="flex items-center justify-between rounded-xl bg-muted p-1">
+                  <button type="button" onClick={() => setUsePhone(false)} className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold ${!usePhone ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground'}`}>Email + password</button>
+                  <button type="button" onClick={() => setUsePhone(true)} className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold ${usePhone ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground'}`}>Phone + PIN</button>
+                </div>
+              )}
+
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               {isSignUp && (
                 <fieldset className="flex flex-col gap-2">
@@ -185,6 +212,10 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                       <Input id="nationalId" value={nationalId} onChange={(event) => setNationalId(event.target.value)} placeholder="For secure KYC" required autoComplete="off" />
                     </div>
                   </div>
+                  <div className="flex flex-col gap-2 sm:col-span-2">
+                    <Label htmlFor="pin">USSD PIN <span className="font-normal text-muted-foreground">(4-6 digits, for phone login)</span></Label>
+                    <Input id="pin" type="password" inputMode="numeric" value={pin} onChange={(event) => setPin(event.target.value)} placeholder="Optional" minLength={4} maxLength={6} autoComplete="off" />
+                  </div>
                 </>
               )}
 
@@ -195,20 +226,38 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                 </div>
               )}
 
+{!(usePhone && !isSignUp) && (
+              <>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="email">Email address</Label>
-                <Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required autoComplete="email" />
+                <Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required={!usePhone || isSignUp} autoComplete="email" />
               </div>
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between"><Label htmlFor="password">Password</Label>{isSignUp && <span className="text-xs text-muted-foreground">8+ characters</span>}</div>
-                <Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Create a secure password" required minLength={8} autoComplete={isSignUp ? 'new-password' : 'current-password'} />
+                <Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={isSignUp ? "Create a secure password" : "Your password"} required={!usePhone || isSignUp} minLength={isSignUp ? 8 : 1} autoComplete={isSignUp ? 'new-password' : 'current-password'} />
               </div>
+              </>
+            )}
+
+              {usePhone && !isSignUp && (
+                <>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="loginPhone">Phone number</Label>
+                    <Input id="loginPhone" type="tel" value={loginPhone} onChange={(e) => setLoginPhone(e.target.value)} placeholder="+254 700 000 000" required autoComplete="tel" />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="loginPin">USSD PIN</Label>
+                    <Input id="loginPin" type="password" inputMode="numeric" value={loginPin} onChange={(e) => setLoginPin(e.target.value)} placeholder="4-6 digits" required minLength={4} maxLength={6} autoComplete="off" />
+                  </div>
+                </>
+              )}
 
               {error && <p className="rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive" role="alert">{error}</p>}
               <Button type="submit" disabled={loading} className="mt-1 h-11 w-full rounded-xl text-sm font-semibold shadow-sm">
                 {loading ? 'Please wait...' : isSignUp ? 'Create my AgroShield account' : 'Sign in to AgroShield'}
               </Button>
             </form>
+              </>
             )}
 
             <p className="mt-7 text-center text-sm text-muted-foreground">

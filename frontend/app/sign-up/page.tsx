@@ -4,7 +4,10 @@ import { redirect } from 'next/navigation'
 import { AuthForm } from '@/components/auth-form'
 
 export default async function SignUpPage() {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (session?.user) redirect('/')
+  const isDev = process.env.NODE_ENV === 'development'
+  if (!isDev) {
+    const session = await auth.api.getSession({ headers: await headers() })
+    if (session?.user) redirect('/')
+  }
   return <AuthForm mode="sign-up" />
 }

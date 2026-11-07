@@ -20,7 +20,7 @@ const securityFeatures = [
   {
     id: 'decentralization',
     title: 'Decentralization',
-    description: 'Built on the 0G blockchain, AgroShield operates without central intermediaries. Smart contracts execute insurance triggers autonomously.',
+    description: 'Built on Base (Base Sepolia), AgroShield operates without central intermediaries. Smart contracts execute insurance triggers autonomously.',
     image: '/security-decentralization.jpg',
   },
   {

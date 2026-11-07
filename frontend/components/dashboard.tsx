@@ -8,6 +8,22 @@ import { authClient } from '@/lib/auth-client'
 import { BrandLogo } from '@/components/brand-logo'
 import { WalletConnectButton } from '@/components/wallet-connect-button'
 import BuyCoverageButton from '@/components/BuyCoverageButton'
+import { WeatherWidget } from '@/components/weather-widget'
+import { CoverageRules } from '@/components/coverage-rules'
+import { SyncPolicies } from '@/components/sync-policies'
+import { AutoPayout } from '@/components/auto-payout'
+
+interface PolicyRow {
+  id: number
+  onChainPolicyId: number
+  holder: string
+  thresholdMm: number
+  coverageEth: string
+  premiumEth: string
+  txHash: string | null
+  status: string
+  purchasedAt: Date | string
+}
 
 interface DashboardProps {
   user: { name: string; email: string; role?: string } | null
@@ -19,6 +35,7 @@ interface DashboardProps {
     plotSizeAcres: string
     role: string
   } | null
+  policies?: PolicyRow[] | null
 }
 
 const navItems = [
@@ -39,7 +56,7 @@ function EmptyState({ title, description }: { title: string; description: string
   )
 }
 
-export function Dashboard({ user, profile }: DashboardProps) {
+export function Dashboard({ user, profile, policies }: DashboardProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -83,7 +100,7 @@ export function Dashboard({ user, profile }: DashboardProps) {
             </div>
           </header>
           <div className="mx-auto max-w-6xl space-y-7 p-5 sm:p-10">
-            {pathname === '/dashboard' ? <><div><p className="text-sm text-neutral-500">Welcome back, {displayName.split(' ')[0]}.</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">Protect your farm with confidence.</h2><p className="mt-3 max-w-2xl text-base leading-7 text-neutral-500">Your dashboard will show coverage, weather signals, and payouts once your AgroShield plan is connected.</p></div><div className="mt-6"><BuyCoverageButton /></div><div className="grid gap-5 md:grid-cols-3"><EmptyState title="No coverage yet" description="Your active coverage plans will appear here once you enroll a plot." /><EmptyState title="No weather data connected" description="Weather monitoring will begin after a coverage location is set." /><EmptyState title="No payouts yet" description="Payout history will appear here after a verified trigger event." /></div></> : pathname === '/dashboard/coverage' ? <div className="space-y-6"><div className="flex items-center justify-between"><h2 className="text-xl font-semibold">Your Coverage</h2><BuyCoverageButton /></div><EmptyState title="No coverage plans" description="You have not added a coverage plan yet. Start by completing your farm profile." /></div> : pathname === '/dashboard/weather' ? <EmptyState title="Weather monitoring is not connected" description="Connect a covered plot to begin receiving location-specific weather monitoring." /> : pathname === '/dashboard/payouts' ? <EmptyState title="No payouts yet" description="Verified payouts will appear here when a coverage trigger is reached." /> : <div className="rounded-2xl border border-neutral-200 bg-white p-7 shadow-sm"><h2 className="text-xl font-semibold">Your profile</h2><dl className="mt-6 grid gap-5 sm:grid-cols-2"><div><dt className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Name</dt><dd className="mt-1 text-sm font-medium">{displayName}</dd></div><div><dt className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Email</dt><dd className="mt-1 text-sm font-medium">{user?.email}</dd></div><div><dt className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Account type</dt><dd className="mt-1 text-sm font-medium">{user?.role === 'partner' ? 'Partner' : 'Farmer'}</dd></div></dl></div>}
+            {pathname === '/dashboard' ? <><div><p className="text-sm text-neutral-500">Welcome back, {displayName.split(' ')[0]}.</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">Protect your farm with confidence.</h2><p className="mt-3 max-w-2xl text-base leading-7 text-neutral-500">Your dashboard will show coverage, weather signals, and payouts once your AgroShield plan is connected.</p></div><div className="mt-6"><BuyCoverageButton location={profile?.county ? `${profile.county}, Kenya` : null} /></div><div className="grid gap-5 md:grid-cols-3">{policies && policies.length > 0 ? <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm"><p className="text-sm font-semibold text-neutral-950">{policies.length} active polic{policies.length > 1 ? "ies" : "y"}</p><p className="text-xs text-neutral-500 mt-1">Latest: Policy #{policies[0].onChainPolicyId} · {policies[0].coverageEth} ETH coverage</p></div> : <EmptyState title="No coverage yet" description="Your active coverage plans will appear here once you enroll a plot." />}<WeatherWidget location={profile?.county ? `${profile.county}, Kenya` : null} />{(policies || []).filter((p) => p.status === "paid").length > 0 ? <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm"><p className="text-sm font-semibold text-neutral-950">{(policies || []).filter((p) => p.status === "paid").length} payout(s) received</p><p className="text-xs text-neutral-500 mt-1">See Payouts tab for details.</p></div> : <EmptyState title="No payouts yet" description="Payout history will appear here after a verified trigger event." />}</div></> : pathname === '/dashboard/coverage' ? <div className="space-y-6"><div className="flex items-center justify-between flex-wrap gap-3"><h2 className="text-xl font-semibold">Your Coverage</h2><div className="flex items-center gap-3"><SyncPolicies /><BuyCoverageButton location={profile?.county ? `${profile.county}, Kenya` : null} /></div></div><AutoPayout /><CoverageRules />{policies && policies.length > 0 ? <div className="space-y-3">{policies.map((p) => (<div key={p.id} className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><div><p className="text-sm font-semibold text-neutral-950">Policy #{p.onChainPolicyId}</p><p className="text-xs text-neutral-500">Threshold: {p.thresholdMm}mm · Coverage: {p.coverageEth} ETH · Premium: {p.premiumEth} ETH</p></div><span className="rounded-full bg-[#e7f6ee] px-3 py-1 text-xs font-semibold text-[#16834e]">{p.status}</span></div>{p.txHash && <a href={`https://sepolia.basescan.org/tx/${p.txHash}`} target="_blank" rel="noopener noreferrer" className="mt-2 block text-xs text-[#19a463] hover:underline">View tx →</a>}</div>))}</div> : <EmptyState title="No coverage plans" description="You have not added a coverage plan yet. Start by completing your farm profile." />}</div> : pathname === '/dashboard/weather' ? <WeatherWidget location={profile?.county ? `${profile.county}, Kenya` : null} /> : pathname === '/dashboard/payouts' ? (() => { const paid = (policies || []).filter((p) => p.status === 'paid'); if (paid.length === 0) return <EmptyState title="No payouts yet" description="Verified payouts will appear here when a coverage trigger is reached." />; return <div className="space-y-3">{paid.map((p) => ( <div key={p.id} className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">   <div className="flex items-center justify-between">     <div><p className="text-sm font-semibold text-neutral-950">Payout — Policy #{p.onChainPolicyId}</p>     <p className="text-xs text-neutral-500 mt-1">{p.coverageEth} ETH to {p.holder.slice(0,6)}…{p.holder.slice(-4)}</p></div>     <span className="rounded-full bg-[#e7f6ee] px-3 py-1 text-xs font-semibold text-[#16834e]">Paid</span>   </div>   {p.txHash && <a href={`https://sepolia.basescan.org/tx/${p.txHash}`} target="_blank" rel="noopener noreferrer" className="mt-2 block text-xs text-[#19a463] hover:underline">View settle tx →</a>} </div>))}</div>; })() : <div className="rounded-2xl border border-neutral-200 bg-white p-7 shadow-sm"><h2 className="text-xl font-semibold">Your profile</h2><dl className="mt-6 grid gap-5 sm:grid-cols-2"><div><dt className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Name</dt><dd className="mt-1 text-sm font-medium">{displayName}</dd></div><div><dt className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Email</dt><dd className="mt-1 text-sm font-medium">{user?.email}</dd></div><div><dt className="text-xs font-semibold uppercase tracking-wide text-neutral-400">Account type</dt><dd className="mt-1 text-sm font-medium">{user?.role === 'partner' ? 'Partner' : 'Farmer'}</dd></div></dl></div>}
           </div>
         </section>
       </div>

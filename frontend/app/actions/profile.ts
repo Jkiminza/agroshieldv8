@@ -14,6 +14,7 @@ async function getUserId() {
 
 export type ProfileInput = {
   phoneNumber: string
+  pin?: string
   nationalId: string
   county: string
   cropType: string

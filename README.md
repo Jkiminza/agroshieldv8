@@ -1,6 +1,6 @@
 # AgroShield
 
-**Decentralized Parametric Crop Insurance on 0G Network**
+**Decentralized Parametric Crop Insurance on Base**
 
 Affordable, automatic, and transparent crop insurance for smallholder farmers — starting with maize farmers in Makueni County, Kenya.
 
@@ -8,17 +8,17 @@ Affordable, automatic, and transparent crop insurance for smallholder farmers �
 
 ### Network Details
 
-- **Network**: 0G Galileo Testnet
-- **Chain ID**: 16602
-- **RPC**: https://evmrpc-testnet.0g.ai
-- **Explorer**: https://chainscan-galileo.0g.ai
-- **Native Token**: 0G (18 decimals)
-- **Faucet**: https://faucet.0g.ai
+- **Network**: Base Sepolia Testnet
+- **Chain ID**: 84532
+- **RPC**: https://sepolia.base.org
+- **Explorer**: https://sepolia.basescan.org
+- **Native Token**: ETH (18 decimals)
+- **Faucet**: https://faucet.quicknode.com/base/sepolia
 
 ### Deployment
 
-- **Contract address**: `0xC3EF46B3Fcce1a266a65DdEF2865BE59758a9e75`
-- **Deployment transaction**: [0x82161f8efb2b325d6c630e98265ce338ce4d7a9e0b39314b8c6811e9b9db68ad](https://chainscan-galileo.0g.ai/tx/0x82161f8efb2b325d6c630e98265ce338ce4d7a9e0b39314b8c6811e9b9db68ad)
+- **Contract address**: Deployed via `npm run deploy` in contracts folder
+- **Contract**: `PolicyContract.sol` (Solidity)
 
 ---
 
@@ -38,22 +38,23 @@ Makueni County in Kenya (our starting point) is a clear example of this reality 
 ---
 
 ### Our Solution – AgroShield
-AgroShield is a decentralized parametric crop insurance platform built on 0G Network (EVM-compatible smart contracts). Instead of relying on human assessors, AgroShield uses parametric triggers:
+AgroShield is a decentralized parametric crop insurance platform built on Base (EVM-compatible). Instead of relying on human assessors, AgroShield uses parametric triggers:
 
 - **Automated Triggers:** A weather oracle continuously feeds accurate rainfall data for the farmer's specific region onto the blockchain.
-- **Instant Payouts:** If rainfall falls below a pre-agreed threshold (for example, less than 25mm over 30 days) during the coverage period, the smart contract automatically triggers a payout.
+- **Instant Payouts:** If rainfall falls below a pre-agreed threshold (for example, less than 2mm (configurable per policy)) during the coverage period, the smart contract automatically triggers a payout.
 - **No Friction:** The farmer receives the money directly and quickly — no claim form, no inspector, no dispute, and no long waiting period.
 
 #### Key advantages:
 - **Fast payouts** — money arrives in time for the next planting season.
-- **Very low costs** — 0G's sub-cent transaction fees make small premiums and small payouts economically viable.
+- **Very low costs** — Base's low transaction fees make small premiums and small payouts economically viable.
 - **Transparency** — all rules and weather data are on-chain and auditable.
 - **Accessibility** — designed for farmers who use mobile money and basic smartphones.
 
 Beyond just insurance, AgroShield is building a full financial safety net for farmers:
-- Early weather alerts via SMS so farmers can act before the drought hits.
+- Early weather alerts via SMS (Africa's Talking) so farmers can act before the drought hits.
+- USSD interface for feature phone users (no smartphone needed).
 - Simple crop recommendations based on weather trends.
-- An on-chain coverage and claims history (CreditAttestation) that can later help farmers access better credit from lenders.
+- An on-chain coverage and claims history that can later help farmers access better credit from lenders.
 
 **In short:**
 AgroShield removes the biggest barriers of traditional insurance and turns climate protection into fast, transparent, and affordable on-chain infrastructure for smallholder farmers.
@@ -64,19 +65,25 @@ AgroShield removes the biggest barriers of traditional insurance and turns clima
 The AgroShield system follows a modular, trustless architecture:
 
 ```text
-       [ Weather Oracle ]
-               |
-               v
-    [ Smart Contract ] <--- [ 0G Network ]
-               |
-               v
-    [ Frontend Dashboard ] <--- [ User Wallet (MetaMask/Rabby) ]
+        [ Weather Oracle (OpenWeatherMap) ]
+                |
+                v
+     [ Smart Contract ] <--- [ Base Sepolia ]
+                |
+                v
+     [ Frontend Dashboard ] <--- [ User Wallet (MetaMask/Rabby) ]
+                |
+                v
+        [ Africa's Talking API ]
+           /              \
+        SMS              USSD
 ```
 
-1. **Weather Oracle**: Ingests satellite weather data.
-2. **Smart Contract**: Stores policy state and automates payouts.
+1. **Weather Oracle**: Ingests satellite weather data via OpenWeatherMap API.
+2. **Smart Contract**: Stores policy state and automates payouts on Base Sepolia.
 3. **Frontend Dashboard**: User-friendly portal for farmers to buy coverage and track insurance status.
-4. **0G Network**: Handles low-cost, secure settlement.
+4. **Africa's Talking**: Handles SMS notifications and USSD sessions for feature phone users.
+5. **Base Network**: Handles low-cost, secure settlement.
 
 ---
 
@@ -84,9 +91,10 @@ The AgroShield system follows a modular, trustless architecture:
 - Automatic payouts based on verified weather triggers.
 - Multi-wallet support (MetaMask, Rabby, WalletConnect via RainbowKit).
 - Dashboard for coverage status, payout history, and weather alerts.
-- **(Planned)** SMS notifications integration.
-- **(Planned)** Automated weather data ingestion via decentralized oracle.
-- **(Planned)** Credit score building through on-chain history.
+- **SMS notifications** via Africa's Talking (policy confirmation, payout alerts, weather warnings).
+- **USSD interface** via Africa's Talking (feature phone access: buy coverage, check policies, view payouts).
+- **Weather oracle** integration with OpenWeatherMap for real-time rainfall data.
+- Credit score building through on-chain history.
 
 ---
 
@@ -94,13 +102,18 @@ The AgroShield system follows a modular, trustless architecture:
 ```text
 agroshield/
 ├── contracts/
-│   └── solidity/            # Solidity Smart Contract
+│   └── contracts/            # Solidity Smart Contract
 │       └── PolicyContract.sol
-│   └── scripts/             # Deployment scripts
+│   └── scripts/              # Deployment scripts
 │       └── deploy.js
-│   └── hardhat.config.js    # Hardhat configuration
+│   └── hardhat.config.js     # Hardhat configuration (Base Sepolia)
 ├── frontend/                 # Next.js Application
 │   ├── app/
+│   │   ├── api/
+│   │   │   ├── auth/         # Better-auth endpoints
+│   │   │   ├── oracle/       # Weather oracle endpoints
+│   │   │   ├── sms/          # SMS notification endpoints
+│   │   │   └── ussd/         # USSD callback endpoint
 │   │   ├── dashboard/        # Farmer dashboard
 │   │   │   ├── coverage/
 │   │   │   ├── payouts/
@@ -112,8 +125,12 @@ agroshield/
 │   │   ├── wallet-connect-button.tsx
 │   │   └── wagmi-provider.tsx
 │   ├── lib/
-│   │   ├── agroshield.ts    # Contract interaction logic
-│   │   └── wagmi.ts         # Wagmi configuration
+│   │   ├── abi.ts            # Contract ABI
+│   │   ├── agroshield.ts     # Contract interaction logic
+│   │   ├── africastalking.ts # Africa's Talking SMS/USSD
+│   │   ├── auth.ts           # Better-auth config
+│   │   ├── wagmi.ts          # Wagmi configuration (Base Sepolia)
+│   │   └── weather-oracle.ts # Weather oracle integration
 │   └── package.json
 └── README.md
 ```
@@ -137,7 +154,15 @@ npm install
 #### 3. Set up environment variables
 Create a `.env.local` file in the frontend directory:
 ```env
+BETTER_AUTH_URL=http://localhost:3000
+DATABASE_URL=your_postgresql_url
+BETTER_AUTH_SECRET=your_better_auth_secret
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+PRIVATE_KEY=your_deployer_private_key
+NEXT_PUBLIC_CONTRACT_ADDRESS=your_deployed_contract_address
+AFRICASTALKING_USERNAME=sandbox
+AFRICASTALKING_API_KEY=your_africastalking_sandbox_key
+WEATHER_API_KEY=your_openweathermap_api_key
 ```
 
 #### 4. Run the frontend
@@ -145,27 +170,59 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 npm run dev
 ```
 
-#### 5. Deploy Smart Contract
+#### 5. Deploy Smart Contract to Base Sepolia
 ```bash
 cd ../contracts
 npm install
-echo "PRIVATE_KEY=your_private_key_here" > .env
+# Add PRIVATE_KEY and BASESCAN_API_KEY to .env
 npm run deploy
 ```
+
+#### 6. Configure Africa's Talking Sandbox
+1. Sign up at https://africastalking.com
+2. Get sandbox credentials (username: `sandbox`, API key from dashboard)
+3. Add to frontend `.env.local`
+4. Test USSD at https://simulator.africastalking.com:1517
 
 ---
 
 ### Roadmap
-- [x] Core contract + Testnet deployment (Stellar → 0G migration)
-- [x] Multi-wallet + Basic UI (Stellar → EVM migration)
-- [x] Full Testnet product (frontend + contract connected)
-- [x] Security audit + Mainnet preparation
+- [x] Core contract + Testnet deployment (Base Sepolia)
+- [x] Multi-wallet + Basic UI
+- [x] Weather oracle integration (OpenWeatherMap)
+- [x] Africa's Talking SMS integration
+- [x] Africa's Talking USSD interface
+- [x] Deploy contract to Base Sepolia (0x9C478BC167cE2673fd3c5631601D31D2D50E49fF)
+- [x] Frontend integration testing
+- [x] Auto-payout (oracle) tested on Base Sepolia
 - [ ] **Mainnet Launch** + Pilot in Makueni County
 - [ ] Scale across Kenya and East Africa
 
 ---
 
+### Coverage & Payout Rules
+
+**Coverage (buy):**
+- Premium must be > 0 (paid in ETH).
+- Coverage amount must be > 0.
+- Rainfall threshold must be > 0 (mm).
+- Each purchase creates one policy tied to the buyer's wallet.
+
+**Trigger (report):**
+- The oracle reports observed rainfall (mm) + a keccak256 report hash.
+- A policy can only be reported once.
+- Oracle is the contract owner (deployer) by default.
+
+**Payout (settle):**
+- Triggers only if `0 < reportedValue < threshold`.
+- If rainfall >= threshold, no payout.
+- Pays the full coverage amount to the holder; policy closes (no double claims).
+- Anyone can call `settle` once reported.
+
+---
+
 ### Contract Functions
+
 
 The smart contract supports the following functions:
 
@@ -173,20 +230,43 @@ The smart contract supports the following functions:
 - `report(uint256 id, uint256 value, bytes32 reportHash)`: Oracle reports rainfall data
 - `settle(uint256 id)`: Trigger automatic payout if conditions are met
 - `getPolicy(uint256 id)`: Retrieve policy details
+- `setOracle(address _oracle)`: Update oracle address (owner only)
+- `fundContract()`: Fund the contract for payouts
+- `withdrawFunds()`: Withdraw contract balance (owner only)
+
+---
+
+### API Endpoints
+
+#### Weather Oracle
+- `GET /api/oracle?lat={lat}&lon={lon}&location={place}&policyId={id}&threshold={threshold}` - Get rainfall data and check trigger (location is geocoded)
+- `POST /api/oracle` - Check trigger with body: `{policyId, latitude, longitude, threshold}`
+- `POST /api/payout/trigger` - Auto-payout: reads active policies, fetches live weather by policy location, reports rainfall, and settles if below threshold. Returns per-policy results.
+
+#### SMS Notifications
+- `POST /api/sms` - Send SMS
+  - Types: `policy_confirmation`, `payout`, `weather_alert`, `welcome`, `custom`
+
+#### USSD
+- `POST /api/ussd` - Africa's Talking USSD callback
+  - Form data: `sessionId`, `phoneNumber`, `text`, `serviceCode`
 
 ---
 
 ### Testing the Application
 
-1. **Get Testnet Funds**: Visit https://faucet.0g.ai to get test 0G tokens
-2. **Connect Wallet**: Use MetaMask or Rabby wallet to connect to 0G Galileo Testnet (Chain ID: 16602)
+1. **Get Testnet Funds**: Visit https://faucet.quicknode.com/base/sepolia for Base Sepolia ETH
+2. **Connect Wallet**: Use MetaMask or Rabby wallet to connect to Base Sepolia (Chain ID: 84532)
 3. **Buy Policy**: Purchase insurance coverage by paying premium
-4. **Report Rainfall**: Simulate oracle reporting rainfall data
+4. **Report Rainfall**: Simulate oracle reporting rainfall data via API
 5. **Settle Payout**: Trigger automatic payout if rainfall is below threshold
+6. **Test USSD**: Use Africa's Talking simulator at https://simulator.africastalking.com:1517
+7. **Test SMS**: Use Africa's Talking sandbox to send test SMS
 
 ---
 
 ### Explorer Links
 
-- **Transaction Explorer**: https://chainscan-galileo.0g.ai/tx/{transaction_hash}
-- **Contract Explorer**: https://chainscan-galileo.0g.ai/address/{contract_address}
+- **Transaction Explorer**: https://sepolia.basescan.org/tx/{transaction_hash}
+- **Contract Explorer**: https://sepolia.basescan.org/address/{contract_address}
+- **Africa's Talking Sandbox**: https://africastalking.com/sandbox

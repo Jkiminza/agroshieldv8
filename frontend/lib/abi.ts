@@ -1,8 +1,108 @@
 export const CONTRACT_ABI = [
   {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
     "inputs": [
-      {"internalType": "uint64", "name": "threshold", "type": "uint64"},
-      {"internalType": "uint256", "name": "coverage", "type": "uint256"}
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "policyId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "holder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "premium",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "coverage",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "threshold",
+        "type": "uint64"
+      }
+    ],
+    "name": "PolicyPurchased",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "policyId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "holder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "payout",
+        "type": "uint256"
+      }
+    ],
+    "name": "PolicySettled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "policyId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "reportedValue",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "reportHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "RainfallReported",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "threshold",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint256",
+        "name": "coverage",
+        "type": "uint256"
+      }
     ],
     "name": "buy",
     "outputs": [],
@@ -10,10 +110,183 @@ export const CONTRACT_ABI = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "fundContract",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
     "inputs": [
-      {"internalType": "uint256", "name": "id", "type": "uint256"},
-      {"internalType": "uint256", "name": "value", "type": "uint256"},
-      {"internalType": "bytes32", "name": "reportHash", "type": "bytes32"}
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPolicy",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "holder",
+            "type": "address"
+          },
+          {
+            "internalType": "uint64",
+            "name": "threshold",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint256",
+            "name": "premium",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "coverage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reportedValue",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "reportHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bool",
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "paid",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct PolicyContract.Policy",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "oracle",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "policies",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "holder",
+        "type": "address"
+      },
+      {
+        "internalType": "uint64",
+        "name": "threshold",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint256",
+        "name": "premium",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "coverage",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "reportedValue",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "reportHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "active",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "paid",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "policyCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "reportHash",
+        "type": "bytes32"
+      }
     ],
     "name": "report",
     "outputs": [],
@@ -22,7 +295,24 @@ export const CONTRACT_ABI = [
   },
   {
     "inputs": [
-      {"internalType": "uint256", "name": "id", "type": "uint256"}
+      {
+        "internalType": "address",
+        "name": "_oracle",
+        "type": "address"
+      }
+    ],
+    "name": "setOracle",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
     ],
     "name": "settle",
     "outputs": [],
@@ -30,28 +320,10 @@ export const CONTRACT_ABI = [
     "type": "function"
   },
   {
-    "inputs": [
-      {"internalType": "uint256", "name": "id", "type": "uint256"}
-    ],
-    "name": "getPolicy",
-    "outputs": [
-      {
-        "components": [
-          {"internalType": "address", "name": "holder", "type": "address"},
-          {"internalType": "uint64", "name": "threshold", "type": "uint64"},
-          {"internalType": "uint256", "name": "premium", "type": "uint256"},
-          {"internalType": "uint256", "name": "coverage", "type": "uint256"},
-          {"internalType": "uint256", "name": "reportedValue", "type": "uint256"},
-          {"internalType": "bytes32", "name": "reportHash", "type": "bytes32"},
-          {"internalType": "bool", "name": "active", "type": "bool"},
-          {"internalType": "bool", "name": "paid", "type": "bool"}
-        ],
-        "internalType": "struct PolicyContract.Policy",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
+    "inputs": [],
+    "name": "withdrawFunds",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ] as const

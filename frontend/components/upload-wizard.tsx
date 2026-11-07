@@ -333,9 +333,9 @@ export function UploadWizard() {
                 </summary>
                 <div className="mt-4 bg-[#232823] rounded p-4 text-sm text-[#8a9bb5] space-y-2">
                   <p>• This invoice token is backed by a verified business invoice</p>
-                  <p>• Investors receive 0G tokens proportional to their investment</p>
+                  <p>• Investors receive coverage on Base (Base Sepolia) proportional to their investment</p>
                   <p>• Repayment occurs when the underlying invoice is paid</p>
-                  <p>• All transactions are recorded on the 0G blockchain</p>
+                  <p>• All transactions are recorded on Base (Base Sepolia)</p>
                 </div>
               </details>
             </div>
