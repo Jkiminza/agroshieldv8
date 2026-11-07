@@ -22,6 +22,61 @@ Affordable, automatic, and transparent crop insurance for smallholder farmers â€
 
 ---
 
+### Architecture
+
+```
++-----------------------------------------------------------------------------+
+|                           AGROSHIELD (Base Sepolia)                          |
++-----------------------------------------------------------------------------+
+
+   Farmer (phone/web)                      Weather Oracle
+        |                                       |
+        | 1. Sign up (email or phone+PIN)        |  fetchRainfallData (OpenWeatherMap)
+        | 2. Buy cover (wallet or Pretium STK)   |  fetchHistoricalRainfall (CHIRPS)
+        v                                       v
+   +-------------------+              +-----------------------+
+   |  Frontend (Next)  |              |  lib/weather-oracle   |
+   |  /dashboard       |              |  /api/oracle          |
+   |  /dashboard/*     |              +-----------+-----------+
+   |  /api/ussd        |                          |
+   |  /api/sms         |                          v
+   |  /api/chat        |              +-----------------------+
+   +---------+---------+              |  county_rules (DB)    |
+             |                        |  trigger / exit /     |
+             |                        |  season / premium     |
+             v                        +-----------+-----------+
+   +-------------------+                          |
+   |   Neon Postgres   |<-------------------------+
+   |  farmer_profiles  |
+   |  policies         |
+   |  counties         |
+   |  county_rules     |
+   +---------+---------+
+             |
+             | server-side signer (deployer key)
+             v
+   +-------------------+        +-------------------------+
+   |  Base Sepolia     |        |  Africa's Talking /     |
+   |  PolicyContract   |<------>|  ThriveVas SMS + USSD    |
+   |  buy/report/settle|        +-------------------------+
+   +-------------------+
+             |
+             v
+   +-------------------+
+   |  Payout (ETH)     |  -->  farmer wallet / Pretium off-ramp -> M-Pesa
+   +-------------------+
+
+Flows:
+  Signup:  web auth (better-auth) OR USSD phone+PIN -> farmer_profiles
+  Buy:     wallet buy() OR Pretium STK -> recordPolicy() (locked county_rules)
+  Oracle:  /api/oracle -> weather + checkRainfallTrigger -> report() (deployer)
+  Payout:  auto-payout (/api/payout/trigger) -> settle() -> SMS notification
+  USSD:    *384*87051# -> profile / policies / payouts / weather / ask assistant
+  Chat:    /api/chat -> OpenAI (scoped to AgroShield topics)
+```
+
+---
+
 ### The Problem
 Smallholder farmers in Africa face severe climate risks, especially drought, yet fewer than 3% have any form of crop insurance. Traditional insurance has failed them for several reasons:
 
