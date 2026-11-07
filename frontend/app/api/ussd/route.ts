@@ -59,7 +59,7 @@ async function weatherFor(loc: string | null) {
 
 async function isOnTopic(q: string): Promise<boolean> {
   const low = q.toLowerCase()
-  const topics = ['agroshield','agriculture','agricultural','insurance','policy','payout','premium','trigger','weather','rain','rainfall','county','threshold','ussd','sms','oracle','coverage','crop','farm','drought','soil','harvest','season','plot','claim']
+  const topics = ['agroshield','agriculture','agricultural','insurance','policy','payout','premium','trigger','weather','rain','rainfall','county','threshold','ussd','sms','oracle','coverage','cover','buy','crop','farm','drought','soil','harvest','season','plot','claim','account','profile']
   return topics.some(t => low.includes(t))
 }
 
