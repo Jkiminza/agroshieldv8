@@ -1,0 +1,18 @@
+# Environment variables
+.env
+.env*.local
+
+# Common ignores
+node_modules
+.next/
+.DS_Store
+
+# Build artifacts
+target/
+contracts/artifacts/
+contracts/cache/
+
+# Local logs & agent files
+*.log
+frontend/AGENTS.md
+frontend/CLAUDE.md

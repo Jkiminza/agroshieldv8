@@ -1,0 +1,71 @@
+@import 'tailwindcss';
+
+@theme inline {
+  --font-sans: 'Inter', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--card);
+  --color-popover-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--muted);
+  --color-secondary-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--primary);
+  --color-destructive: #b42318;
+  --radius-sm: 0.45rem;
+  --radius-md: 0.65rem;
+  --radius-lg: 0.9rem;
+  --radius-xl: 1.15rem;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #101412;
+  --card: #ffffff;
+  --primary: #16834e;
+  --primary-foreground: #ffffff;
+  --accent: #e7f6ee;
+  --muted: #f5f6f4;
+  --muted-foreground: #68706b;
+  --border: #dfe4e0;
+  --radius: 0.65rem;
+}
+
+@layer base {
+  * { @apply antialiased; }
+  html { @apply bg-[#0a0a0a]; }
+  body { @apply bg-background text-foreground font-sans leading-relaxed; }
+  h1, h2, h3, h4, h5, h6 { @apply font-sans font-semibold tracking-tight; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+}
+
+.card-hover-glow { @apply transition-shadow duration-300; }
+.card-hover-glow:hover { box-shadow: 0 12px 30px rgba(22, 131, 78, 0.12); }
+.badge-funded { @apply inline-flex items-center rounded-full border border-emerald-600/30 bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700; }
+.badge-pending { @apply inline-flex items-center rounded-full border border-amber-600/30 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700; }
+.badge-overdue { @apply inline-flex items-center rounded-full border border-red-600/30 bg-red-50 px-3 py-1 text-sm font-medium text-red-700; }
+.badge-review { @apply inline-flex items-center rounded-full border border-neutral-300 bg-neutral-100 px-3 py-1 text-sm font-medium text-neutral-700; }
+.badge-closed { @apply inline-flex items-center rounded-full border border-neutral-300 bg-neutral-100 px-3 py-1 text-sm font-medium text-neutral-500 opacity-60; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f5f6f4; }
+::-webkit-scrollbar-thumb { background: #cbd3cd; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #aab7ae; }
+
+/* RainbowKit connect button — pill shape + brand green */
+[data-rk] .rk-connect-button {
+  border-radius: 9999px !important;
+}
+
+[data-rk] .rk-connect-button:hover {
+  background: linear-gradient(0deg, rgba(0,0,0,0.06), rgba(0,0,0,0.06)), #19a463;
+}
